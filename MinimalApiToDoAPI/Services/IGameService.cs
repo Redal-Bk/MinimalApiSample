@@ -58,7 +58,7 @@ namespace MinimalApiToDoAPI.Services
                     {
                         Name = x.Title ?? "",
                         Publisher = x.Publisher ?? "",
-                        ReleaseDate = (DateTime)x.ReleaseDate,
+                        ReleaseDate = x.ReleaseDate,
 
                     })
                     .ToListAsync(ct);

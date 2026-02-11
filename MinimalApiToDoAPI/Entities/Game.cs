@@ -8,5 +8,5 @@ public partial class Game
 
     public string? Publisher { get; set; }
 
-    public DateTime? ReleaseDate { get; set; }
+    public DateTime ReleaseDate { get; set; }
 }

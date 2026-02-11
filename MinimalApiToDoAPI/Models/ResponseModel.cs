@@ -9,6 +9,6 @@
     {
         public string message { get; set; } = string.Empty;
         public bool success { get; set; }
-        public T response { get; set; }
+        public T? response { get; set; }
     }
 }

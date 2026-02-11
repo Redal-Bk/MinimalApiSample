@@ -32,7 +32,7 @@ public partial class MinimalContext : DbContext
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Users__3214EC07CD89447A");
-            entity.Property(e => e.Password).HasMaxLength(50);
+            entity.Property(e => e.Password).HasMaxLength(500);
             entity.Property(e => e.Username).HasMaxLength(100);
         });
 

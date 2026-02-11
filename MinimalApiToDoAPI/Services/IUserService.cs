@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using MinimalApiToDoAPI.Entities;
 using MinimalApiToDoAPI.Models;
+
 
 namespace MinimalApiToDoAPI.Services
 {
@@ -13,10 +15,11 @@ namespace MinimalApiToDoAPI.Services
     public class UserService : IUserService
     {
         private readonly MinimalContext _db;
-
-        public UserService(MinimalContext db)
+        private readonly IPasswordHasher<User> _hash;
+        public UserService(MinimalContext db, IPasswordHasher<User> hash)
         {
-             _db = db;   
+            _db = db;
+            _hash = hash;
         }
 
         public async Task<User?> ValidateUserAsync(string username, string password, CancellationToken ct = default)
@@ -25,12 +28,33 @@ namespace MinimalApiToDoAPI.Services
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Username == username, ct);
 
-            if (user == null || user.Password != password)
+            if (user == null)
             {
-                return null;
+                return null;  
             }
 
-            return user;
+           
+            var verificationResult = _hash.VerifyHashedPassword(
+                user,
+                user.Password,   
+                password             
+            );
+
+            if (verificationResult == PasswordVerificationResult.Success ||
+                verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+
+                if (verificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+                {
+                    user.Password = _hash.HashPassword(user, password);
+                    _db.Users.Update(user);
+                    await _db.SaveChangesAsync(ct);
+                }
+
+                return user;
+            }
+
+            return null;  
         }
         public async Task<ResponseModel<List<UserDTO>>> AllAsync(CancellationToken ct = default)
         {
@@ -67,14 +91,15 @@ namespace MinimalApiToDoAPI.Services
                     res.success = false;
                     return res;
                 }
+                
                 var user = await _db.Users.FirstOrDefaultAsync(x => x.Username == dto.Username);
                 if(user == null)
                 {
                     var data = new User
                     {
-                        Username = dto.Username,
-                        Password = dto.Password
+                        Username = dto.Username,                       
                     };
+                    data.Password = _hash.HashPassword(data, dto.Password);
                     await _db.Users.AddAsync(data);
                     await _db.SaveChangesAsync();
                     return res;

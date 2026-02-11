@@ -8,8 +8,8 @@ namespace MinimalApiToDoAPI.UserEndpoints
         public static void MapUserEndpoints(this IEndpointRouteBuilder app)
         {
             var group = app.MapGroup("/user")
-                           .WithTags("Users")
-                           .RequireAuthorization();
+                           .WithTags("Users");
+                           //.RequireAuthorization();
 
 
             group.MapPost("/", AddUser)

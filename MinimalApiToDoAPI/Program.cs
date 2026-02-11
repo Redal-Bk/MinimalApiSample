@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MinimalApiToDoAPI.AuthEndpoints;
@@ -19,7 +20,7 @@ builder.Services.AddOpenApi(options =>
 });
 builder.Services.AddScoped<IUserService,UserService>();
 builder.Services.AddScoped<IGameService, GameService>();
-
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
